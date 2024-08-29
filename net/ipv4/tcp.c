@@ -1166,6 +1166,9 @@ new_segment:
 			if (!skb)
 				goto wait_for_space;
 
+			if (sockc.priority) {
+            	skb->priority = sockc.priority;
+			}
 			process_backlog++;
 
 #ifdef CONFIG_SKB_DECRYPTED

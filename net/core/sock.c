@@ -2840,6 +2840,16 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 			return -EINVAL;
 		sockc->mark = *(u32 *)CMSG_DATA(cmsg);
 		break;
+	case SO_PRIORITY:
+		int tmp_priority = *(u32 *)CMSG_DATA(cmsg);
+		if ((tmp_priority >= 0 && tmp_priority <= 6) ||
+			sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
+			sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
+			sockc->priority = tmp_priority;
+			break;
+		} else {
+			return -EPERM;//TODO: check EPERM
+		}
 	case SO_TIMESTAMPING_OLD:
 	case SO_TIMESTAMPING_NEW:
 		if (cmsg->cmsg_len != CMSG_LEN(sizeof(u32)))
@@ -2862,7 +2872,7 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 	/* SCM_RIGHTS and SCM_CREDENTIALS are semantically in SOL_UNIX. */
 	case SCM_RIGHTS:
 	case SCM_CREDENTIALS:
-		break;
+		break
 	default:
 		return -EINVAL;
 	}

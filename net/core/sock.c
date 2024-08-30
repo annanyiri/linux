@@ -2846,10 +2846,11 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 			sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
 			sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
 			sockc->priority = tmp_priority;
-			break;
+			return 0;
 		} else {
 			return -EPERM;//TODO: check EPERM
 		}
+		break;
 	case SO_TIMESTAMPING_OLD:
 	case SO_TIMESTAMPING_NEW:
 		if (cmsg->cmsg_len != CMSG_LEN(sizeof(u32)))

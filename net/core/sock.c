@@ -2830,6 +2830,7 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 		     struct sockcm_cookie *sockc)
 {
 	u32 tsflags;
+	u32 priorityValue;
 
 	switch (cmsg->cmsg_type) {
 	case SO_MARK:
@@ -2863,6 +2864,16 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 	case SCM_RIGHTS:
 	case SCM_CREDENTIALS:
 		break;
+	case SO_PRIORITY:
+		priorityValue = *(u32 *)CMSG_DATA(cmsg);
+		if ((priorityValue >= 0 && priorityValue <= 6) ||
+		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
+		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
+			sockc->priority = priorityValue;
+			sockc->priority_set = true;
+			break;
+		}
+		return -EPERM;
 	default:
 		return -EINVAL;
 	}

@@ -1455,7 +1455,13 @@ struct sk_buff *__ip_make_skb(struct sock *sk,
 		ip_options_build(skb, opt, cork->addr, rt);
 	}
 
-	skb->priority = (cork->tos != -1) ? cork->priority: READ_ONCE(sk->sk_priority);
+	if (ipc->priorty_set)
+	{
+		skb->priority = (ipc->tos != -1) ? ipc->priority : READ_ONCE(sk->sk_priority);
+	} else {
+		skb->priority = (cork->tos != -1) ? cork->priority: READ_ONCE(sk->sk_priority);
+	}
+	
 	skb->mark = cork->mark;
 	if (sk_is_tcp(sk))
 		skb_set_delivery_time(skb, cork->transmit_time, SKB_CLOCK_MONOTONIC);

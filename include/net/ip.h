@@ -81,6 +81,7 @@ struct ipcm_cookie {
 	__u8			ttl;
 	__s16			tos;
 	char			priority;
+	bool			cmsg_priority;
 	__u16			gso_size;
 };
 

@@ -1322,7 +1322,10 @@ static int ip_setup_cork(struct sock *sk, struct inet_cork *cork,
 	cork->ttl = ipc->ttl;
 	cork->tos = ipc->tos;
 	cork->mark = ipc->sockc.mark;
-	cork->priority = ipc->priority;
+	if (ipc->sockc.cmsg_priority) {
+        cork->priority = ipc->sockc.priority;
+    }
+
 	cork->transmit_time = ipc->sockc.transmit_time;
 	cork->tx_flags = 0;
 	sock_tx_timestamp(sk, ipc->sockc.tsflags, &cork->tx_flags);
@@ -1455,12 +1458,8 @@ struct sk_buff *__ip_make_skb(struct sock *sk,
 		ip_options_build(skb, opt, cork->addr, rt);
 	}
 
-	if (ipc->priorty_set)
-	{
-		skb->priority = (ipc->tos != -1) ? ipc->priority : READ_ONCE(sk->sk_priority);
-	} else {
-		skb->priority = (cork->tos != -1) ? cork->priority: READ_ONCE(sk->sk_priority);
-	}
+	skb->priority = (cork->cmsg_priority) ? cork->priority : 
+                    (cork->tos != -1) ? cork->priority : READ_ONCE(sk->sk_priority);
 	
 	skb->mark = cork->mark;
 	if (sk_is_tcp(sk))

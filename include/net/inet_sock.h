@@ -172,7 +172,7 @@ struct inet_cork {
 	__u8			ttl;
 	__s16			tos;
 	char			priority;
-	bool			priority_set;
+	bool			cmsg_priority;
 	__u16			gso_size;
 	u64			transmit_time;
 	u32			mark;

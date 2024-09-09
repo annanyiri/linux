@@ -272,10 +272,6 @@ int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
 				return err;
 			continue;
 		}
-
-		if (ipc->sockc.priority_set) {
-			ipc->priority = ipc->sockc.priority;
-		}
 		if (cmsg->cmsg_level != SOL_IP)
 			continue;
 		switch (cmsg->cmsg_type) {

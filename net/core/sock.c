@@ -2870,7 +2870,7 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
 		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
 			sockc->priority = priorityValue;
-			sockc->priority_set = true;
+			sockc->cmsg_priority = true;
 			break;
 		}
 		return -EPERM;

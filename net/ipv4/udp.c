@@ -1043,7 +1043,12 @@ int udp_cmsg_send(struct sock *sk, struct msghdr *msg, u16 *gso_size)
 			need_ip = true;
 			continue;
 		}
-
+		if (cmsg->cmsg_level == SOL_SOCKET) {
+			if (cmsg->cmsg_type == SO_PRIORITY) {
+				sk->sk_priority = *(u32 *)CMSG_DATA(cmsg);
+				printk(KERN_INFO "udp_cmsg_send: Priority from cmsg = %u\n", sk->sk_priority);
+			}
+		}
 		err = __udp_cmsg_send(cmsg, gso_size);
 		if (err)
 			return err;
@@ -1133,8 +1138,10 @@ int udp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 
 	ipcm_init_sk(&ipc, inet);
 	ipc.gso_size = READ_ONCE(up->gso_size);
+	ipc.sockc.priority = sk->sk_priority;
 
 	if (msg->msg_controllen) {
+
 		err = udp_cmsg_send(sk, msg, &ipc.gso_size);
 		if (err > 0) {
 			err = ip_cmsg_send(sk, msg, &ipc,
@@ -1264,6 +1271,9 @@ back_from_confirm:
 		skb = ip_make_skb(sk, fl4, getfrag, msg, ulen,
 				  sizeof(struct udphdr), &ipc, &rt,
 				  &cork, msg->msg_flags);
+		if (skb) {
+			skb->priority = sk->sk_priority;
+		}
 		err = PTR_ERR(skb);
 		if (!IS_ERR_OR_NULL(skb))
 			err = udp_send_skb(skb, fl4, &cork);

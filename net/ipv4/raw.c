@@ -358,7 +358,8 @@ static int raw_send_hdrinc(struct sock *sk, struct flowi4 *fl4,
 	skb_reserve(skb, hlen);
 
 	skb->protocol = htons(ETH_P_IP);
-	skb->priority = READ_ONCE(sk->sk_priority);
+	skb->priority = sockc->priority;
+	printk(KERN_INFO "Received packet with SO_PRIORITY in raw_send_hdrinc: %d\n", skb->priority);
 	skb->mark = sockc->mark;
 	skb_set_delivery_type_by_clockid(skb, sockc->transmit_time, sk->sk_clockid);
 	skb_dst_set(skb, &rt->dst);
@@ -605,13 +606,11 @@ static int raw_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 			ipc.oif = uc_index;
 		}
 	}
-
 	flowi4_init_output(&fl4, ipc.oif, ipc.sockc.mark, tos, scope,
-			   hdrincl ? ipc.protocol : sk->sk_protocol,
-			   inet_sk_flowi_flags(sk) |
-			    (hdrincl ? FLOWI_FLAG_KNOWN_NH : 0),
-			   daddr, saddr, 0, 0, sk->sk_uid);
-
+                       hdrincl ? ipc.protocol : sk->sk_protocol,
+                       inet_sk_flowi_flags(sk) |
+                        (hdrincl ? FLOWI_FLAG_KNOWN_NH : 0),
+                       daddr, saddr, 0, ipc.sockc.priority, sk->sk_uid);
 	fl4.fl4_icmp_type = 0;
 	fl4.fl4_icmp_code = 0;
 

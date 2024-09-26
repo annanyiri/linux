@@ -777,6 +777,15 @@ int ip6_datagram_send_ctl(struct net *net, struct sock *sk,
 		}
 
 		if (cmsg->cmsg_level == SOL_SOCKET) {
+			if (cmsg->cmsg_type == SO_PRIORITY) {
+				int tmp_priority = *(u32 *)CMSG_DATA(cmsg);
+				if (tmp_priority < 0 || tmp_priority > 6) {
+					return -EINVAL;
+					goto exit_f;
+				}
+				ipc6->priority = tmp_priority;
+			}
+			printk(KERN_INFO "Set SO_PRIORITY in ip_cmsg_send: %d\n", ipc6->priority);
 			err = __sock_cmsg_send(sk, cmsg, &ipc6->sockc);
 			if (err)
 				return err;

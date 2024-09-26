@@ -745,6 +745,16 @@ static int ping_v4_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 		if (ipc.opt)
 			free = 1;
 	}
+
+	struct cmsghdr *cmsg;
+    for (cmsg = CMSG_FIRSTHDR(msg); cmsg != NULL; cmsg = CMSG_NXTHDR(msg, cmsg)) {
+        if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SO_PRIORITY) {
+            ipc.sockc.priority = *(u32 *)CMSG_DATA(cmsg);
+			printk(KERN_INFO "SO_PRIORITY value in ping_v4_sendmsg: %d\n", ipc.sockc.priority);
+            break;
+        }
+    }
+
 	if (!ipc.opt) {
 		struct ip_options_rcu *inet_opt;
 
@@ -781,7 +791,7 @@ static int ping_v4_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 
 	flowi4_init_output(&fl4, ipc.oif, ipc.sockc.mark, tos, scope,
 			   sk->sk_protocol, inet_sk_flowi_flags(sk), faddr,
-			   saddr, 0, 0, sk->sk_uid);
+			   saddr, 0, ipc.sockc.priority, sk->sk_uid);
 
 	fl4.fl4_icmp_type = user_icmph.type;
 	fl4.fl4_icmp_code = user_icmph.code;

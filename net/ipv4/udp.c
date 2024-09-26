@@ -1074,7 +1074,7 @@ int udp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	struct sk_buff *skb;
 	struct ip_options_data opt_copy;
 	int uc_index;
-
+	
 	if (len > 0xFFFF)
 		return -EMSGSIZE;
 
@@ -1148,6 +1148,11 @@ int udp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 		if (ipc.opt)
 			free = 1;
 	}
+	if (ipc.sockc.priority) {
+    	sk->sk_priority = ipc.sockc.priority;
+	}
+    printk(KERN_INFO "SO_PRIORITY value in udp_sendmsg: %d\n", sk->sk_priority);
+
 	if (!ipc.opt) {
 		struct ip_options_rcu *inet_opt;
 
@@ -1229,7 +1234,7 @@ int udp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 
 		flowi4_init_output(fl4, ipc.oif, ipc.sockc.mark, tos, scope,
 				   sk->sk_protocol, flow_flags, faddr, saddr,
-				   dport, inet->inet_sport, sk->sk_uid);
+				   dport, inet->inet_sport, sk->sk_uid, ipc.sockc.priority);
 
 		security_sk_classify_flow(sk, flowi4_to_flowi_common(fl4));
 		rt = ip_route_output_flow(net, fl4, sk);

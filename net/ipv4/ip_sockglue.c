@@ -267,6 +267,14 @@ int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
 		}
 #endif
 		if (cmsg->cmsg_level == SOL_SOCKET) {
+			if (cmsg->cmsg_type == SO_PRIORITY) {
+				int tmp_priority = *(u32 *)CMSG_DATA(cmsg);
+				if (tmp_priority < 0 || tmp_priority > 6) {
+					return -EINVAL;
+				}
+				ipc->priority = tmp_priority;
+			}
+			printk(KERN_INFO "Set SO_PRIORITY in ip_cmsg_send: %d\n", ipc->priority);
 			err = __sock_cmsg_send(sk, cmsg, &ipc->sockc);
 			if (err)
 				return err;

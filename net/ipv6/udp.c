@@ -1351,6 +1351,9 @@ int udpv6_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 	ipc6.gso_size = READ_ONCE(up->gso_size);
 	ipc6.sockc.tsflags = READ_ONCE(sk->sk_tsflags);
 	ipc6.sockc.mark = READ_ONCE(sk->sk_mark);
+	ipc6.sockc.priority = READ_ONCE(sk->sk_priority);
+	printk(KERN_INFO "SO_PRIORITY value in udpv6_sendmsg: %d\n", ipc6.sockc.priority);
+	
 
 	/* destination address check */
 	if (sin6) {
@@ -1511,6 +1514,7 @@ do_udp_sendmsg:
 
 	fl6->flowi6_proto = sk->sk_protocol;
 	fl6->flowi6_mark = ipc6.sockc.mark;
+	fl6->flowi6_priority = ipc6.sockc.priority;
 	fl6->daddr = *daddr;
 	if (ipv6_addr_any(&fl6->saddr) && !ipv6_addr_any(&np->saddr))
 		fl6->saddr = np->saddr;

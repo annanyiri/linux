@@ -361,6 +361,7 @@ struct ipcm6_cookie {
 	__u16 gso_size;
 	__s8  dontfrag;
 	struct ipv6_txoptions *opt;
+	__u32 priority;
 };
 
 static inline void ipcm6_init(struct ipcm6_cookie *ipc6)

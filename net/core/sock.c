@@ -1127,6 +1127,14 @@ int sk_setsockopt(struct sock *sk, int level, int optname,
 
 	/* handle options which do not require locking the socket. */
 	switch (optname) {
+	case SO_PRIORITY:
+		if ((val >= 0 && val <= 6) ||
+		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
+		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
+			sock_set_priority(sk, val);
+			return 0;
+		}
+		return -EPERM;
 	case SO_PASSSEC:
 		assign_bit(SOCK_PASSSEC, &sock->flags, valbool);
 		return 0;
@@ -1542,15 +1550,6 @@ set_sndbuf:
 			ret = sock_reserve_memory(sk, delta);
 		break;
 	}
-	case SO_PRIORITY:
-		if ((val >= 0 && val <= 6) ||
-			sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
-			sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
-			sock_set_priority(sk, val);
-			return 0;
-		}
-	return -EPERM;
-
 	default:
 		ret = -ENOPROTOOPT;
 		break;
@@ -2846,6 +2845,7 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 			sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
 			sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
 			sockc->priority = tmp_priority;
+			printk(KERN_INFO "Received packet with SO_PRIORITY in sock_cmsg_send: %d\n", sockc->priority);
 			return 0;
 		} else {
 			return -EPERM;//TODO: check EPERM

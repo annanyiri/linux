@@ -32,6 +32,7 @@ struct flowi_common {
 	int	flowic_iif;
 	int     flowic_l3mdev;
 	__u32	flowic_mark;
+	__u32	flowic_priority;
 	__u8	flowic_tos;
 	__u8	flowic_scope;
 	__u8	flowic_proto;
@@ -95,7 +96,7 @@ static inline void flowi4_init_output(struct flowi4 *fl4, int oif,
 				      __u8 proto, __u8 flags,
 				      __be32 daddr, __be32 saddr,
 				      __be16 dport, __be16 sport,
-				      kuid_t uid)
+				      kuid_t uid, __u32 priority)
 {
 	fl4->flowi4_oif = oif;
 	fl4->flowi4_iif = LOOPBACK_IFINDEX;
@@ -113,6 +114,7 @@ static inline void flowi4_init_output(struct flowi4 *fl4, int oif,
 	fl4->fl4_dport = dport;
 	fl4->fl4_sport = sport;
 	fl4->flowi4_multipath_hash = 0;
+	fl4->flowi4_priority = priority;
 }
 
 /* Reset some input parameters after previous lookup */
@@ -131,6 +133,7 @@ struct flowi6 {
 #define flowi6_iif		__fl_common.flowic_iif
 #define flowi6_l3mdev		__fl_common.flowic_l3mdev
 #define flowi6_mark		__fl_common.flowic_mark
+#define flowi6_priority	__fl_common.flowic_priority
 #define flowi6_scope		__fl_common.flowic_scope
 #define flowi6_proto		__fl_common.flowic_proto
 #define flowi6_flags		__fl_common.flowic_flags

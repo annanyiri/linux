@@ -246,6 +246,8 @@ int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
 	struct cmsghdr *cmsg;
 	struct net *net = sock_net(sk);
 
+	ipc->priority = 'f';
+
 	for_each_cmsghdr(cmsg, msg) {
 		if (!CMSG_OK(msg, cmsg))
 			return -EINVAL;
@@ -267,6 +269,20 @@ int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
 		}
 #endif
 		if (cmsg->cmsg_level == SOL_SOCKET) {
+			switch (cmsg->cmsg_type){
+			case SO_PRIORITY:
+				if (cmsg->cmsg_len != CMSG_LEN(sizeof(u32)))
+					return -EINVAL;
+				if ((*(u32 *)CMSG_DATA(cmsg) >= 0 && *(u32 *)CMSG_DATA(cmsg) <= 6) ||
+					sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
+					sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
+					ipc->priority = *(u32 *)CMSG_DATA(cmsg); 
+					printk(KERN_DEBUG "priority in ip_cmsg_send: %d\n", ipc->priority);
+					break;
+				} else {
+					return -EPERM;
+				}
+			}
 			err = __sock_cmsg_send(sk, cmsg, &ipc->sockc);
 			if (err)
 				return err;

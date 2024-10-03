@@ -238,6 +238,8 @@ static int mctp_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
 	if (rc < 0)
 		goto out_free;
 
+	printk(KERN_DEBUG "priority in mctp_recvmsg: %d\n", skb->priority);
+
 	sock_recv_cmsgs(msg, sk, skb);
 
 	if (addr) {

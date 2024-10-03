@@ -333,6 +333,8 @@ static int raw_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
 	if (err)
 		goto done;
 
+	printk(KERN_DEBUG "priority in raw_recvmsg: %d\n", skb->priority);
+
 	sock_recv_cmsgs(msg, sk, skb);
 
 	if (flags & MSG_TRUNC)

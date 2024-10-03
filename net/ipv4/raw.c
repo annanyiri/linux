@@ -358,7 +358,8 @@ static int raw_send_hdrinc(struct sock *sk, struct flowi4 *fl4,
 	skb_reserve(skb, hlen);
 
 	skb->protocol = htons(ETH_P_IP);
-	skb->priority = READ_ONCE(sk->sk_priority);
+	skb->priority = (sockc->priority > -1) ? sockc->priority :  READ_ONCE(sk->sk_priority);
+	printk(KERN_DEBUG "priority value in raw_send_hdrinc: %d\n", skb->priority);
 	skb->mark = sockc->mark;
 	skb_set_delivery_type_by_clockid(skb, sockc->transmit_time, sk->sk_clockid);
 	skb_dst_set(skb, &rt->dst);
@@ -766,6 +767,8 @@ static int raw_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
 	err = skb_copy_datagram_msg(skb, 0, msg, copied);
 	if (err)
 		goto done;
+
+	printk(KERN_DEBUG "priority in raw_recvmsg(ipv4): %d\n", skb->priority);
 
 	sock_recv_cmsgs(msg, sk, skb);
 

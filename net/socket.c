@@ -1016,8 +1016,20 @@ static void sock_recv_mark(struct msghdr *msg, struct sock *sk,
 	if (sock_flag(sk, SOCK_RCVMARK) && skb) {
 		/* We must use a bounce buffer for CONFIG_HARDENED_USERCOPY=y */
 		__u32 mark = skb->mark;
-
+		printk(KERN_DEBUG "mark: %u\n", skb->mark);
 		put_cmsg(msg, SOL_SOCKET, SO_MARK, sizeof(__u32), &mark);
+	}
+}
+
+static void sock_recv_priority(struct msghdr *msg, struct sock *sk,
+			   struct sk_buff *skb)
+{
+	printk(KERN_DEBUG "priority in sock_recv_priority: %d\n", skb->priority);
+	if (sock_flag(sk, SOCK_RCVPRIORITY) && skb) {
+		/* We must use a bounce buffer for CONFIG_HARDENED_USERCOPY=y */
+		__u32 priority = skb->priority;
+
+		put_cmsg(msg, SOL_SOCKET, SO_PRIORITY, sizeof(__u32), &priority);
 	}
 }
 
@@ -1027,6 +1039,8 @@ void __sock_recv_cmsgs(struct msghdr *msg, struct sock *sk,
 	sock_recv_timestamp(msg, sk, skb);
 	sock_recv_drops(msg, sk, skb);
 	sock_recv_mark(msg, sk, skb);
+	printk(KERN_DEBUG "priority in sock_recv_cmsgs: %d\n", skb->priority);
+	sock_recv_priority(msg, sk, skb);
 }
 EXPORT_SYMBOL_GPL(__sock_recv_cmsgs);
 

@@ -1124,7 +1124,7 @@ int sk_setsockopt(struct sock *sk, int level, int optname,
 		return -EFAULT;
 
 	valbool = val ? 1 : 0;
-
+	printk(KERN_DEBUG "sk_setsockopt val: %d\n", val);
 	/* handle options which do not require locking the socket. */
 	switch (optname) {
 	case SO_PRIORITY:
@@ -1443,6 +1443,11 @@ set_sndbuf:
 		break;
 	case SO_RCVMARK:
 		sock_valbool_flag(sk, SOCK_RCVMARK, valbool);
+		break;
+
+	case SO_RCVPRIORITY:
+		printk("priority setting in sk_setsockopt");
+		sock_valbool_flag(sk, SOCK_RCVPRIORITY, valbool);
 		break;
 
 	case SO_RXQ_OVFL:
@@ -1873,6 +1878,10 @@ int sk_getsockopt(struct sock *sk, int level, int optname,
 		v.val = sock_flag(sk, SOCK_RCVMARK);
 		break;
 
+	case SO_RCVPRIORITY:
+		printk("priority get in sk_getsockopt");
+		v.val = sock_flag(sk, SOCK_RCVPRIORITY);
+		break;
 	case SO_RXQ_OVFL:
 		v.val = sock_flag(sk, SOCK_RXQ_OVFL);
 		break;
@@ -2831,6 +2840,8 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 {
 	u32 tsflags;
 
+	//TODO: check if priority setting to -1 is necessary
+	sockc->priority = -1; //setting priority based on this value in raw message sending skb->priority = (sockc->priority > -1) ? sockc->priority :  READ_ONCE(sk->sk_priority);
 	switch (cmsg->cmsg_type) {
 	case SO_MARK:
 		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) &&
@@ -2863,6 +2874,18 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 	case SCM_RIGHTS:
 	case SCM_CREDENTIALS:
 		break;
+	case SO_PRIORITY:
+		if (cmsg->cmsg_len != CMSG_LEN(sizeof(u32)))
+			return -EINVAL;
+		if ((*(u32 *)CMSG_DATA(cmsg) >= 0 && *(u32 *)CMSG_DATA(cmsg) <= 6) ||
+		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
+		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
+			sockc->priority = *(u32 *)CMSG_DATA(cmsg); 
+			printk(KERN_DEBUG "priority in sock_cmsg_send: %d\n", sockc->priority);
+			break;
+		} else {
+			return -EPERM;
+		}
 	default:
 		return -EINVAL;
 	}

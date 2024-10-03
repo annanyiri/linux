@@ -1260,10 +1260,11 @@ back_from_confirm:
 	/* Lockless fast path for the non-corking case. */
 	if (!corkreq) {
 		struct inet_cork cork;
-
 		skb = ip_make_skb(sk, fl4, getfrag, msg, ulen,
 				  sizeof(struct udphdr), &ipc, &rt,
 				  &cork, msg->msg_flags);
+		printk(KERN_INFO "Packet priority: %d\n", skb->priority);
+		printk(KERN_DEBUG "msg_controllen: %zu\n", msg->msg_controllen);
 		err = PTR_ERR(skb);
 		if (!IS_ERR_OR_NULL(skb))
 			err = udp_send_skb(skb, fl4, &cork);
@@ -1877,6 +1878,7 @@ try_again:
 		UDP_INC_STATS(sock_net(sk),
 			      UDP_MIB_INDATAGRAMS, is_udplite);
 
+	printk(KERN_DEBUG "priority in udp_recvmsg: %d\n", skb->priority);
 	sock_recv_cmsgs(msg, sk, skb);
 
 	/* Copy the address. */

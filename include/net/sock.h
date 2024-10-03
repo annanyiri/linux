@@ -949,6 +949,7 @@ enum sock_flags {
 	SOCK_XDP, /* XDP is attached */
 	SOCK_TSTAMP_NEW, /* Indicates 64 bit timestamps always */
 	SOCK_RCVMARK, /* Receive SO_MARK  ancillary data with packet */
+	SOCK_RCVPRIORITY, /* Receive SO_PRIORITY ancillary data with packet */
 };
 
 #define SK_FLAGS_TIMESTAMP ((1UL << SOCK_TIMESTAMP) | (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE))
@@ -1794,6 +1795,7 @@ struct sockcm_cookie {
 	u64 transmit_time;
 	u32 mark;
 	u32 tsflags;
+	u32 priority;
 };
 
 static inline void sockcm_init(struct sockcm_cookie *sockc,
@@ -2636,12 +2638,12 @@ void __sock_recv_cmsgs(struct msghdr *msg, struct sock *sk,
 static inline void sock_recv_cmsgs(struct msghdr *msg, struct sock *sk,
 				   struct sk_buff *skb)
 {
-#define FLAGS_RECV_CMSGS ((1UL << SOCK_RXQ_OVFL)			| \
-			   (1UL << SOCK_RCVTSTAMP)			| \
-			   (1UL << SOCK_RCVMARK))
-#define TSFLAGS_ANY	  (SOF_TIMESTAMPING_SOFTWARE			| \
-			   SOF_TIMESTAMPING_RAW_HARDWARE)
-
+#define FLAGS_RECV_CMSGS ((1UL << SOCK_RXQ_OVFL) | \
+                          (1UL << SOCK_RCVTSTAMP) | \
+                          (1UL << SOCK_RCVMARK) | \
+                          (1UL << SOCK_RCVPRIORITY)) //checks if the socket has sock_rcvpriority flag set
+#define TSFLAGS_ANY	  (SOF_TIMESTAMPING_SOFTWARE | \
+                          SOF_TIMESTAMPING_RAW_HARDWARE)
 	if (sk->sk_flags & FLAGS_RECV_CMSGS ||
 	    READ_ONCE(sk->sk_tsflags) & TSFLAGS_ANY)
 		__sock_recv_cmsgs(msg, sk, skb);

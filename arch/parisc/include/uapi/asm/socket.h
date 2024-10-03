@@ -132,6 +132,8 @@
 #define SO_PASSPIDFD		0x404A
 #define SO_PEERPIDFD		0x404B
 
+#define SO_RCVPRIORITY			0x4050
+
 #if !defined(__KERNEL__)
 
 #if __BITS_PER_LONG == 64

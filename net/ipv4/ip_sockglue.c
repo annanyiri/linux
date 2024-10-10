@@ -267,55 +267,6 @@ int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
 		}
 #endif
 		if (cmsg->cmsg_level == SOL_SOCKET) {
-			/*switch (cmsg->cmsg_type){
-			case SO_PRIORITY:
-				if (cmsg->cmsg_len != CMSG_LEN(sizeof(u32)))
-					return -EINVAL;
-				if ((*(u32 *)CMSG_DATA(cmsg) >= 0 && *(u32 *)CMSG_DATA(cmsg) <= 6) ||
-					sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
-					sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
-					ipc->priority = *(u32 *)CMSG_DATA(cmsg); 
-					ipc->priority_cmsg = 1;
-					printk(KERN_DEBUG "priority in ip_cmsg_send: %d\n", ipc->priority);
-					break;
-				} else {
-					return -EPERM;
-				}
-			}
-			*/int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
-		 bool allow_ipv6)
-{
-	int err, val;
-	struct cmsghdr *cmsg;
-	struct net *net = sock_net(sk);
-
-	for_each_cmsghdr(cmsg, msg) {
-		if (!CMSG_OK(msg, cmsg))
-			return -EINVAL;
-#if IS_ENABLED(CONFIG_IPV6)
-		if (allow_ipv6 &&
-		    cmsg->cmsg_level == SOL_IPV6 &&
-		    cmsg->cmsg_type == IPV6_PKTINFO) {
-			struct in6_pktinfo *src_info;
-
-			if (cmsg->cmsg_len < CMSG_LEN(sizeof(*src_info)))
-				return -EINVAL;
-			src_info = (struct in6_pktinfo *)CMSG_DATA(cmsg);
-			if (!ipv6_addr_v4mapped(&src_info->ipi6_addr))
-				return -EINVAL;
-			if (src_info->ipi6_ifindex)
-				ipc->oif = src_info->ipi6_ifindex;
-			ipc->addr = src_info->ipi6_addr.s6_addr32[3];
-			continue;
-		}
-#endif
-		if (cmsg->cmsg_level == SOL_SOCKET) {
-			err = __sock_cmsg_send(sk, cmsg, &ipc->sockc);
-			if (err)
-				return err;
-			continue;
-		}
-
 			err = __sock_cmsg_send(sk, cmsg, &ipc->sockc);
 			if (err)
 				return err;

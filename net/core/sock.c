@@ -2840,8 +2840,6 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 {
 	u32 tsflags;
 
-	//TODO: check if priority setting to -1 is necessary
-	sockc->priority = -1; //setting priority based on this value in raw message sending skb->priority = (sockc->priority > -1) ? sockc->priority :  READ_ONCE(sk->sk_priority);
 	switch (cmsg->cmsg_type) {
 	case SO_MARK:
 		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) &&
@@ -2880,8 +2878,9 @@ int __sock_cmsg_send(struct sock *sk, struct cmsghdr *cmsg,
 		if ((*(u32 *)CMSG_DATA(cmsg) >= 0 && *(u32 *)CMSG_DATA(cmsg) <= 6) ||
 		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_RAW) ||
 		    sockopt_ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
-			sockc->priority = *(u32 *)CMSG_DATA(cmsg); 
-			printk(KERN_DEBUG "priority in sock_cmsg_send: %d\n", sockc->priority);
+			sockc->priority_cmsg_value = *(u32 *)CMSG_DATA(cmsg); 
+			sockc->priority_cmsg_set = 1;
+			printk(KERN_DEBUG "priority in sock_cmsg_send: %d\n", sockc->priority_cmsg_value);
 			break;
 		} else {
 			return -EPERM;

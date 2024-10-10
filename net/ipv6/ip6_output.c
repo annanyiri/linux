@@ -1401,8 +1401,6 @@ static int ip6_setup_cork(struct sock *sk, struct inet_cork_full *cork,
 	cork->base.gso_size = ipc6->gso_size;
 	cork->base.tx_flags = 0;
 	cork->base.mark = ipc6->sockc.mark;
-	cork->base.priority = ipc6->sockc.priority;
-	printk(KERN_DEBUG "priority value in ip6_setup_cork: %d\n", cork->base.priority);
 	sock_tx_timestamp(sk, ipc6->sockc.tsflags, &cork->base.tx_flags);
 
 	cork->base.length = 0;

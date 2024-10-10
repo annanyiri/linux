@@ -483,8 +483,6 @@ static int rawv6_recvmsg(struct sock *sk, struct msghdr *msg, size_t len,
 		*addr_len = sizeof(*sin6);
 	}
 
-	printk(KERN_DEBUG "priority in rawv6_recvmsg: %d\n", skb->priority);
-
 	sock_recv_cmsgs(msg, sk, skb);
 
 	if (np->rxopt.all)
@@ -621,10 +619,7 @@ static int rawv6_send_hdrinc(struct sock *sk, struct msghdr *msg, int length,
 	skb_reserve(skb, hlen);
 
 	skb->protocol = htons(ETH_P_IPV6);
-	skb->priority = (sockc->priority > -1) ? sockc->priority :  READ_ONCE(sk->sk_priority);
-	printk(KERN_DEBUG "priority value in rawv6_send_hdrinc: %d\n", skb->priority);
-	//skb->priority = READ_ONCE(sk->sk_priority);
-
+	skb->priority = READ_ONCE(sk->sk_priority);
 	skb->mark = sockc->mark;
 	skb_set_delivery_type_by_clockid(skb, sockc->transmit_time, sk->sk_clockid);
 

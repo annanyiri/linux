@@ -1795,7 +1795,8 @@ struct sockcm_cookie {
 	u64 transmit_time;
 	u32 mark;
 	u32 tsflags;
-	u32 priority;
+	u32 priority_cmsg_value;
+	u8 priority_cmsg_set;
 };
 
 static inline void sockcm_init(struct sockcm_cookie *sockc,

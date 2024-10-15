@@ -918,6 +918,7 @@ static int udp_send_skb(struct sk_buff *skb, struct flowi4 *fl4,
 	/*
 	 * Create a UDP header
 	 */
+
 	uh = udp_hdr(skb);
 	uh->source = inet->inet_sport;
 	uh->dest = fl4->fl4_dport;
@@ -1829,6 +1830,7 @@ int udp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int flags,
 try_again:
 	off = sk_peek_offset(sk, flags);
 	skb = __skb_recv_udp(sk, flags, &off, &err);
+	printk(KERN_DEBUG "mark in udp_recvmsg: %d\n", skb->mark);
 	if (!skb)
 		return err;
 

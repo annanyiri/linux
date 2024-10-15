@@ -1036,10 +1036,10 @@ static void sock_recv_priority(struct msghdr *msg, struct sock *sk,
 void __sock_recv_cmsgs(struct msghdr *msg, struct sock *sk,
 		       struct sk_buff *skb)
 {
+	printk(KERN_DEBUG "priority in sock_recv_cmsgs: %d\n", skb->priority);
 	sock_recv_timestamp(msg, sk, skb);
 	sock_recv_drops(msg, sk, skb);
 	sock_recv_mark(msg, sk, skb);
-	printk(KERN_DEBUG "priority in sock_recv_cmsgs: %d\n", skb->priority);
 	sock_recv_priority(msg, sk, skb);
 }
 EXPORT_SYMBOL_GPL(__sock_recv_cmsgs);

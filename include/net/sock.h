@@ -2645,6 +2645,7 @@ static inline void sock_recv_cmsgs(struct msghdr *msg, struct sock *sk,
                           (1UL << SOCK_RCVPRIORITY)) //checks if the socket has sock_rcvpriority flag set
 #define TSFLAGS_ANY	  (SOF_TIMESTAMPING_SOFTWARE | \
                           SOF_TIMESTAMPING_RAW_HARDWARE)
+	printk("sock_recv_cmsgs mark: %d, priority:%d", skb->mark, skb->priority);
 	if (sk->sk_flags & FLAGS_RECV_CMSGS ||
 	    READ_ONCE(sk->sk_tsflags) & TSFLAGS_ANY)
 		__sock_recv_cmsgs(msg, sk, skb);

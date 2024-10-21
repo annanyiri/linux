@@ -619,7 +619,7 @@ static int rawv6_send_hdrinc(struct sock *sk, struct msghdr *msg, int length,
 	skb_reserve(skb, hlen);
 
 	skb->protocol = htons(ETH_P_IPV6);
-	if (sockc->priority_cmsg_set == 1) 
+	if (sockc->priority_cmsg_set == true) 
 		skb->priority = sockc->priority_cmsg_value;
 	else 
 		skb->priority = READ_ONCE(sk->sk_priority);

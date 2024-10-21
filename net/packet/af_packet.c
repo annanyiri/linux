@@ -3125,11 +3125,11 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
 
 	skb->protocol = proto;
 	skb->dev = dev;
-	if (sockc.priority_cmsg_set == 1) 
+	if (sockc.priority_cmsg_set == true) 
 		skb->priority = sockc.priority_cmsg_value;
 	else 
 		skb->priority = READ_ONCE(sk->sk_priority);
-	printk(KERN_DEBUG "priority in packet_snd: %d\n", skb->priority);
+
 	skb->mark = sockc.mark;
 	skb_set_delivery_type_by_clockid(skb, sockc.transmit_time, sk->sk_clockid);
 
@@ -3554,8 +3554,6 @@ static int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
 		sll->sll_protocol = (sock->type == SOCK_DGRAM) ?
 			vlan_get_protocol_dgram(skb) : skb->protocol;
 	}
-
-	printk(KERN_DEBUG "priority in packet_recvmsg: %d\n", skb->priority);
 
 	sock_recv_cmsgs(msg, sk, skb);
 

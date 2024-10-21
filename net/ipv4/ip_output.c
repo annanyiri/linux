@@ -1325,7 +1325,6 @@ static int ip_setup_cork(struct sock *sk, struct inet_cork *cork,
 	cork->priority_cmsg_value= ipc->sockc.priority_cmsg_value;
 	cork->priority_cmsg_set = ipc->sockc.priority_cmsg_set;
 	cork->priority = ipc->priority;
-	printk(KERN_DEBUG "priority in ip_setup_cork is: %d\n", cork->priority_cmsg_value);
 	cork->transmit_time = ipc->sockc.transmit_time;
 	cork->tx_flags = 0;
 	sock_tx_timestamp(sk, ipc->sockc.tsflags, &cork->tx_flags);
@@ -1460,12 +1459,11 @@ struct sk_buff *__ip_make_skb(struct sock *sk,
 
 	if (cork->tos != -1)
 		skb->priority = cork->priority;
-	else if (cork->priority_cmsg_set == 1) 
+	else if (cork->priority_cmsg_set == true) 
 		skb->priority = cork->priority_cmsg_value;
 	else
 		skb->priority = READ_ONCE(sk->sk_priority);
-	//skb->priority = (cork->tos != -1 || cork->priority_cmsg == 1) ? cork->priority: READ_ONCE(sk->sk_priority);
-	printk(KERN_DEBUG "priority value in ip_make_skb: %d\n", skb->priority);
+	
 	skb->mark = cork->mark;
 	if (sk_is_tcp(sk))
 		skb_set_delivery_time(skb, cork->transmit_time, SKB_CLOCK_MONOTONIC);

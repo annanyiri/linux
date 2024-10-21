@@ -327,8 +327,6 @@ int bt_sock_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
 	skb_reset_transport_header(skb);
 	err = skb_copy_datagram_msg(skb, 0, msg, copied);
 	if (err == 0) {
-		printk(KERN_DEBUG "priority in bt_sock_recvmsg: %d\n", skb->priority);
-
 		sock_recv_cmsgs(msg, sk, skb);
 
 		if (msg->msg_name && bt_sk(sk)->skb_msg_name)
@@ -436,8 +434,6 @@ int bt_sock_stream_recvmsg(struct socket *sock, struct msghdr *msg,
 		}
 		copied += chunk;
 		size   -= chunk;
-		
-		printk(KERN_DEBUG "priority in bt_sock_stream_recvmsg: %d\n", skb->priority);
 
 		sock_recv_cmsgs(msg, sk, skb);
 

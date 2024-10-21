@@ -398,8 +398,6 @@ try_again:
 	if (!peeking)
 		SNMP_INC_STATS(mib, UDP_MIB_INDATAGRAMS);
 
-	printk(KERN_DEBUG "priority in udpv6_recvmsg: %d\n", skb->priority);
-
 	sock_recv_cmsgs(msg, sk, skb);
 
 	/* Copy the address. */

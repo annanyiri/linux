@@ -1713,8 +1713,6 @@ static int bcm_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
 		return err;
 	}
 
-	printk(KERN_DEBUG "priority in bcm_recvmsg: %d\n", skb->priority);
-
 	sock_recv_cmsgs(msg, sk, skb);
 
 	if (msg->msg_name) {

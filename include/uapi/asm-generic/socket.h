@@ -135,8 +135,6 @@
 #define SO_PASSPIDFD		76
 #define SO_PEERPIDFD		77
 
-#define SO_RCVPRIORITY	    78
-
 #if !defined(__KERNEL__)
 
 #if __BITS_PER_LONG == 64 || (defined(__x86_64__) && defined(__ILP32__))

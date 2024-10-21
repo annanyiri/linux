@@ -133,8 +133,6 @@
 #define SO_PASSPIDFD             0x0055
 #define SO_PEERPIDFD             0x0056
 
-#define SO_RCVPRIORITY			 0x0057
-
 #if !defined(__KERNEL__)
 
 

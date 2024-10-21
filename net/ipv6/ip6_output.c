@@ -1933,7 +1933,7 @@ struct sk_buff *__ip6_make_skb(struct sock *sk,
 	hdr->saddr = fl6->saddr;
 	hdr->daddr = *final_dst;
 
-	if (cork->base.priority_cmsg_set == 1)
+	if (cork->base.priority_cmsg_set == true)
 		skb->priority = cork->base.priority_cmsg_value;
 	else 
 		skb->priority = READ_ONCE(sk->sk_priority);

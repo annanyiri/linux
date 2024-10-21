@@ -858,8 +858,6 @@ static int j1939_sk_recvmsg(struct socket *sock, struct msghdr *msg,
 		paddr->can_addr.j1939.pgn = skcb->addr.pgn;
 	}
 
-	printk(KERN_DEBUG "priority in j1939_sk_recvmsg: %d\n", skb->priority);
-
 	sock_recv_cmsgs(msg, sk, skb);
 	msg->msg_flags |= skcb->msg_flags;
 	skb_free_datagram(sk, skb);

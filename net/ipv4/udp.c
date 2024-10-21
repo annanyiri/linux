@@ -918,7 +918,6 @@ static int udp_send_skb(struct sk_buff *skb, struct flowi4 *fl4,
 	/*
 	 * Create a UDP header
 	 */
-
 	uh = udp_hdr(skb);
 	uh->source = inet->inet_sport;
 	uh->dest = fl4->fl4_dport;
@@ -1137,7 +1136,6 @@ int udp_sendmsg(struct sock *sk, struct msghdr *msg, size_t len)
 
 	if (msg->msg_controllen) {
 		err = udp_cmsg_send(sk, msg, &ipc.gso_size);
-		printk(KERN_DEBUG "error in udp_cmsg_send : %d\n", err);
 		if (err > 0) {
 			err = ip_cmsg_send(sk, msg, &ipc,
 					   sk->sk_family == AF_INET6);
@@ -1262,11 +1260,10 @@ back_from_confirm:
 	/* Lockless fast path for the non-corking case. */
 	if (!corkreq) {
 		struct inet_cork cork;
+
 		skb = ip_make_skb(sk, fl4, getfrag, msg, ulen,
 				  sizeof(struct udphdr), &ipc, &rt,
 				  &cork, msg->msg_flags);
-		printk(KERN_INFO "Packet priority: %d\n", skb->priority);
-		printk(KERN_DEBUG "msg_controllen: %zu\n", msg->msg_controllen);
 		err = PTR_ERR(skb);
 		if (!IS_ERR_OR_NULL(skb))
 			err = udp_send_skb(skb, fl4, &cork);
@@ -1830,7 +1827,6 @@ int udp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int flags,
 try_again:
 	off = sk_peek_offset(sk, flags);
 	skb = __skb_recv_udp(sk, flags, &off, &err);
-	printk(KERN_DEBUG "mark in udp_recvmsg: %d\n", skb->mark);
 	if (!skb)
 		return err;
 
@@ -1881,7 +1877,6 @@ try_again:
 		UDP_INC_STATS(sock_net(sk),
 			      UDP_MIB_INDATAGRAMS, is_udplite);
 
-	printk(KERN_DEBUG "priority in udp_recvmsg: %d\n", skb->priority);
 	sock_recv_cmsgs(msg, sk, skb);
 
 	/* Copy the address. */

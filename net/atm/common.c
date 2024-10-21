@@ -553,7 +553,6 @@ int vcc_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
 	error = skb_copy_datagram_msg(skb, 0, msg, copied);
 	if (error)
 		return error;
-	printk(KERN_DEBUG "priority in vcc_recvmsg: %d\n", skb->priority);
 	sock_recv_cmsgs(msg, sk, skb);
 
 	if (!(flags & MSG_PEEK)) {

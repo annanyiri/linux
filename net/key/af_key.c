@@ -3733,8 +3733,6 @@ static int pfkey_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
 	if (err)
 		goto out_free;
 
-	printk(KERN_DEBUG "priority in pfkey_recvmsg: %d\n", skb->priority);
-
 	sock_recv_cmsgs(msg, sk, skb);
 
 	err = (flags & MSG_TRUNC) ? skb->len : copied;
